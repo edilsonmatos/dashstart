@@ -94,7 +94,7 @@ const RegisterForm = () => {
         </div>
         
         <Card className="auth-card shadow-lg border-0">
-          <CardHeader className="bg-success text-white text-center border-0">
+          <CardHeader className="text-white text-center border-0" style={{ backgroundColor: 'rgb(117, 0, 131)' }}>
             <CardTitle as="h4" className="mb-0">
               <IconifyIcon icon="bx:user-plus" className="me-2" />
               Criar Conta
