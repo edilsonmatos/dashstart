@@ -55,14 +55,26 @@ const LoginForm = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle as="h4" className="text-center">
-          <IconifyIcon icon="bx:log-in" className="me-2" />
-          Entrar
-        </CardTitle>
-      </CardHeader>
-      <CardBody>
+    <div className="auth-page d-flex justify-content-center align-items-center min-vh-100">
+      <div className="auth-container w-100" style={{ maxWidth: '400px' }}>
+        {/* Logo */}
+        <div className="text-center mb-4">
+          <img 
+            src="/logo-white.png" 
+            alt="Dash Start" 
+            className="auth-logo mb-3"
+            style={{ height: '60px', width: 'auto' }}
+          />
+        </div>
+        
+        <Card className="auth-card shadow-lg border-0">
+          <CardHeader className="bg-primary text-white text-center border-0">
+            <CardTitle as="h4" className="mb-0">
+              <IconifyIcon icon="bx:log-in" className="me-2" />
+              Entrar
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="p-4">
         {error && (
           <Alert variant="danger" className="mb-3">
             <IconifyIcon icon="bx:error" className="me-1" />
@@ -115,16 +127,18 @@ const LoginForm = () => {
           </Button>
         </Form>
 
-        <div className="text-center">
-          <p className="mb-0">
-            Não tem uma conta?{' '}
-            <Link to="/auth/sign-up" className="text-primary">
-              Criar conta aqui
-            </Link>
-          </p>
-        </div>
-      </CardBody>
-    </Card>
+            <div className="text-center">
+              <p className="mb-0">
+                Não tem uma conta?{' '}
+                <Link to="/auth/sign-up" className="text-primary">
+                  Criar conta aqui
+                </Link>
+              </p>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    </div>
   );
 };
 
