@@ -58,6 +58,8 @@
     "simplebar": "^6.2.7",
     "simplebar-react": "^3.2.6",
     "swiper": "^11.1.10",
+    "vite": "^5.4.1",
+    "@vitejs/plugin-react": "^4.3.1",
     "yup": "^1.4.0"
   },
   "devDependencies": {
@@ -67,7 +69,6 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/react-flatpickr": "^3.8.11",
-    "@vitejs/plugin-react": "^4.3.1",
     "axios": "^1.7.3",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
@@ -75,8 +76,7 @@
     "globals": "^15.9.0",
     "prettier": "^3.3.3",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1"
+    "typescript-eslint": "^8.0.1"
   },
   "overrides": {
     "google-maps-react": {
