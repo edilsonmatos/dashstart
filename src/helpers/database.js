@@ -1,5 +1,15 @@
 import { Pool } from 'pg';
-import databaseConfig from '@/config/database';
+
+// Configuração do banco usando variáveis de ambiente
+const databaseConfig = {
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false // Necessário para Render
+  },
+  max: 20, // máximo de clientes no pool
+  idleTimeoutMillis: 30000, // fecha clientes inativos após 30 segundos
+  connectionTimeoutMillis: 2000, // retorna erro após 2 segundos se não conseguir conectar
+};
 
 // Pool de conexões do PostgreSQL
 const pool = new Pool(databaseConfig);

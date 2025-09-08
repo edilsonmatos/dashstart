@@ -19,9 +19,6 @@ dist-ssr
 .env.test.local
 .env.production.local
 
-# Database credentials (security)
-src/config/database.js
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
