@@ -1,0 +1,180 @@
+import { useState } from 'react';
+import { Form, Button, Alert, Card, CardBody, CardHeader, CardTitle } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { useAuthContext } from '@/context/useAuthContext';
+import IconifyIcon from '@/components/wrappers/IconifyIcon';
+
+const RegisterForm = () => {
+  const { register } = useAuthContext();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    // Validações
+    if (!formData.name.trim()) {
+      setError('Nome é obrigatório');
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email é obrigatório');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Senhas não coincidem');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await register({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password
+      });
+
+      if (result.success) {
+        setSuccess('Conta criada com sucesso! Redirecionando...');
+        // O redirecionamento será feito automaticamente pelo AuthContext
+      } else {
+        setError(result.error || 'Erro ao criar conta');
+      }
+    } catch (error) {
+      setError('Erro interno do servidor');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle as="h4" className="text-center">
+          <IconifyIcon icon="bx:user-plus" className="me-2" />
+          Criar Conta
+        </CardTitle>
+      </CardHeader>
+      <CardBody>
+        {error && (
+          <Alert variant="danger" className="mb-3">
+            <IconifyIcon icon="bx:error" className="me-1" />
+            {error}
+          </Alert>
+        )}
+
+        {success && (
+          <Alert variant="success" className="mb-3">
+            <IconifyIcon icon="bx:check-circle" className="me-1" />
+            {success}
+          </Alert>
+        )}
+
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Nome Completo</Form.Label>
+            <Form.Control
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Digite seu nome completo"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Digite seu email"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Senha</Form.Label>
+            <Form.Control
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Digite sua senha (mín. 6 caracteres)"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Confirmar Senha</Form.Label>
+            <Form.Control
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirme sua senha"
+              required
+            />
+          </Form.Group>
+
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-100 mb-3"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <IconifyIcon icon="bx:loader-alt" className="me-1" spin />
+                Criando conta...
+              </>
+            ) : (
+              <>
+                <IconifyIcon icon="bx:user-plus" className="me-1" />
+                Criar Conta
+              </>
+            )}
+          </Button>
+        </Form>
+
+        <div className="text-center">
+          <p className="mb-0">
+            Já tem uma conta?{' '}
+            <Link to="/auth/sign-in" className="text-primary">
+              Faça login aqui
+            </Link>
+          </p>
+        </div>
+      </CardBody>
+    </Card>
+  );
+};
+
+export default RegisterForm;

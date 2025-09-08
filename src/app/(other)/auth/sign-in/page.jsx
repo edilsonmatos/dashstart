@@ -1,5 +1,5 @@
-import SignIn from './components/SignIn';
+import LoginForm from './components/LoginForm';
 const page = () => {
-  return <SignIn />;
+  return <LoginForm />;
 };
 export default page;
