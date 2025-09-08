@@ -45,9 +45,17 @@ export function AuthProvider({
   };
 
   const removeSession = () => {
+    console.log('Removendo sessão...');
     deleteCookie(authSessionKey);
     setUser(null);
-    navigate('/auth/sign-in');
+    
+    // Tentar navegar com React Router primeiro, depois fallback
+    try {
+      navigate('/auth/sign-in');
+    } catch (error) {
+      console.log('Navegação com React Router falhou, usando window.location');
+      window.location.href = '/auth/sign-in';
+    }
   };
 
   const login = async (email, password) => {
