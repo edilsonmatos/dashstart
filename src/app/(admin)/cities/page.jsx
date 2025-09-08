@@ -17,6 +17,7 @@ const CitiesPage = () => {
     custoPorResultado: '',
     image: null
   });
+  const [imagePreview, setImagePreview] = useState(null);
   const [showAlert, setShowAlert] = useState({ show: false, message: '', variant: 'success' });
 
   // Carregar cidades do localStorage
@@ -56,6 +57,26 @@ const CitiesPage = () => {
     setTimeout(() => setShowAlert({ show: false, message: '', variant: 'success' }), 5000);
   };
 
+  // Função para lidar com upload de imagem
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageData = e.target.result;
+        setFormData({ ...formData, image: imageData });
+        setImagePreview(imageData);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Função para remover imagem
+  const removeImage = () => {
+    setFormData({ ...formData, image: null });
+    setImagePreview(null);
+  };
+
   // Função para abrir modal de adicionar/editar
   const openModal = (city = null) => {
     if (city) {
@@ -67,6 +88,7 @@ const CitiesPage = () => {
         custoPorResultado: city.custo_por_resultado || '',
         image: city.image || null
       });
+      setImagePreview(city.image || null);
     } else {
       setEditingCity(null);
       setFormData({
@@ -76,6 +98,7 @@ const CitiesPage = () => {
         custoPorResultado: '',
         image: null
       });
+      setImagePreview(null);
     }
     setShowModal(true);
   };
@@ -91,6 +114,7 @@ const CitiesPage = () => {
       custoPorResultado: '',
       image: null
     });
+    setImagePreview(null);
   };
 
   // Função para salvar cidade
@@ -209,6 +233,7 @@ const CitiesPage = () => {
                 <Table responsive>
                   <thead>
                     <tr>
+                      <th>Imagem</th>
                       <th>Nome</th>
                       <th>Valor Investido</th>
                       <th>Conversas</th>
@@ -219,6 +244,23 @@ const CitiesPage = () => {
                   <tbody>
                     {cities.map((city) => (
                       <tr key={city.id}>
+                        <td>
+                          {city.image ? (
+                            <img 
+                              src={city.image} 
+                              alt={city.name}
+                              className="rounded-circle"
+                              style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <div 
+                              className="rounded-circle bg-light d-flex align-items-center justify-content-center"
+                              style={{ width: '40px', height: '40px' }}
+                            >
+                              <IconifyIcon icon="bx:image" className="text-muted" />
+                            </div>
+                          )}
+                        </td>
                         <td>{city.name}</td>
                         <td>{city.valor_investido}</td>
                         <td>{city.conversas}</td>
@@ -305,6 +347,40 @@ const CitiesPage = () => {
                     onChange={(e) => setFormData({ ...formData, custoPorResultado: e.target.value })}
                     placeholder="Ex: 12,00"
                   />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={12}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Imagem da Cidade</Form.Label>
+                  <div className="d-flex align-items-center gap-3">
+                    <Form.Control
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="form-control-sm"
+                    />
+                    {imagePreview && (
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={removeImage}
+                      >
+                        <IconifyIcon icon="bx:trash" />
+                      </Button>
+                    )}
+                  </div>
+                  {imagePreview && (
+                    <div className="mt-2">
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview"
+                        className="rounded-circle"
+                        style={{ width: '60px', height: '60px', objectFit: 'cover' }}
+                      />
+                    </div>
+                  )}
                 </Form.Group>
               </Col>
             </Row>
