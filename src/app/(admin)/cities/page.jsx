@@ -3,7 +3,6 @@ import { Card, CardBody, CardTitle, Col, Row, Form, Button, Table, Modal, Alert 
 import ComponentContainerCard from '@/components/ComponentContainerCard';
 import IconifyIcon from '@/components/wrappers/IconifyIcon';
 import { useAuthContext } from '@/context/useAuthContext';
-import citiesService from '@/services/citiesService';
 
 const CitiesPage = () => {
   const { user } = useAuthContext();
@@ -20,17 +19,25 @@ const CitiesPage = () => {
   });
   const [showAlert, setShowAlert] = useState({ show: false, message: '', variant: 'success' });
 
-  // Carregar cidades do banco de dados
-  const loadCities = async () => {
+  // Carregar cidades do localStorage
+  const loadCities = () => {
     if (!user) return;
     
     setLoading(true);
     try {
-      const result = await citiesService.getCitiesByUser(user.id);
-      if (result.success) {
-        setCities(result.cities);
+      const userCitiesKey = `cities-${user.id}`;
+      const savedCities = localStorage.getItem(userCitiesKey);
+      if (savedCities) {
+        setCities(JSON.parse(savedCities));
       } else {
-        setShowAlert({ show: true, message: result.error, variant: 'danger' });
+        // Dados padrão para novos usuários
+        const defaultCities = [
+          { id: 1, name: 'TEÓFILO OTONI - MG', valor_investido: '15,000', conversas: '1,250', custo_por_resultado: '12,00', image: null },
+          { id: 2, name: 'ÁGUAS FORMOSAS - MG', valor_investido: '12,500', conversas: '980', custo_por_resultado: '12,76', image: null },
+          { id: 3, name: 'ALMENARA - MG', valor_investido: '18,200', conversas: '1,450', custo_por_resultado: '12,55', image: null }
+        ];
+        setCities(defaultCities);
+        localStorage.setItem(userCitiesKey, JSON.stringify(defaultCities));
       }
     } catch (error) {
       setShowAlert({ show: true, message: 'Erro ao carregar cidades', variant: 'danger' });
@@ -87,7 +94,7 @@ const CitiesPage = () => {
   };
 
   // Função para salvar cidade
-  const saveCity = async () => {
+  const saveCity = () => {
     if (!user) return;
 
     if (!formData.name.trim()) {
@@ -96,40 +103,56 @@ const CitiesPage = () => {
     }
 
     try {
-      let result;
+      const userCitiesKey = `cities-${user.id}`;
+      let updatedCities;
+
       if (editingCity) {
         // Atualizar cidade existente
-        result = await citiesService.updateCity(editingCity.id, user.id, formData);
+        updatedCities = cities.map(city => 
+          city.id === editingCity.id 
+            ? {
+                ...city,
+                name: formData.name,
+                valor_investido: formData.valorInvestido,
+                conversas: formData.conversas,
+                custo_por_resultado: formData.custoPorResultado,
+                image: formData.image
+              }
+            : city
+        );
       } else {
         // Adicionar nova cidade
-        result = await citiesService.addCity(user.id, formData);
+        const newCity = {
+          id: Date.now(),
+          name: formData.name,
+          valor_investido: formData.valorInvestido,
+          conversas: formData.conversas,
+          custo_por_resultado: formData.custoPorResultado,
+          image: formData.image
+        };
+        updatedCities = [...cities, newCity];
       }
 
-      if (result.success) {
-        showAlertMessage(editingCity ? 'Cidade atualizada com sucesso!' : 'Cidade adicionada com sucesso!');
-        closeModal();
-        loadCities(); // Recarregar lista
-      } else {
-        showAlertMessage(result.error, 'danger');
-      }
+      setCities(updatedCities);
+      localStorage.setItem(userCitiesKey, JSON.stringify(updatedCities));
+      showAlertMessage(editingCity ? 'Cidade atualizada com sucesso!' : 'Cidade adicionada com sucesso!');
+      closeModal();
     } catch (error) {
       showAlertMessage('Erro ao salvar cidade', 'danger');
     }
   };
 
   // Função para deletar cidade
-  const deleteCity = async (cityId) => {
+  const deleteCity = (cityId) => {
     if (!user) return;
 
     if (window.confirm('Tem certeza que deseja deletar esta cidade?')) {
       try {
-        const result = await citiesService.deleteCity(cityId, user.id);
-        if (result.success) {
-          showAlertMessage('Cidade deletada com sucesso!');
-          loadCities(); // Recarregar lista
-        } else {
-          showAlertMessage(result.error, 'danger');
-        }
+        const userCitiesKey = `cities-${user.id}`;
+        const updatedCities = cities.filter(city => city.id !== cityId);
+        setCities(updatedCities);
+        localStorage.setItem(userCitiesKey, JSON.stringify(updatedCities));
+        showAlertMessage('Cidade deletada com sucesso!');
       } catch (error) {
         showAlertMessage('Erro ao deletar cidade', 'danger');
       }

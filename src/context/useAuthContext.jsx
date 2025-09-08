@@ -1,7 +1,6 @@
 import { deleteCookie, getCookie, hasCookie, setCookie } from 'cookies-next';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import authService from '@/services/authService';
 const AuthContext = createContext(undefined);
 export function useAuthContext() {
   const context = useContext(AuthContext);
@@ -20,19 +19,12 @@ export function AuthProvider({
 
   // Carregar sessão do usuário
   useEffect(() => {
-    const loadSession = async () => {
+    const loadSession = () => {
       try {
         const fetchedCookie = getCookie(authSessionKey)?.toString();
         if (fetchedCookie) {
           const sessionData = JSON.parse(fetchedCookie);
-          // Verificar se o usuário ainda existe no banco
-          const result = await authService.getUserById(sessionData.id);
-          if (result.success) {
-            setUser(result.user);
-          } else {
-            // Usuário não existe mais, limpar sessão
-            removeSession();
-          }
+          setUser(sessionData);
         }
       } catch (error) {
         console.error('Erro ao carregar sessão:', error);
@@ -58,12 +50,17 @@ export function AuthProvider({
 
   const login = async (email, password) => {
     try {
-      const result = await authService.login(email, password);
-      if (result.success) {
-        saveSession(result.user);
+      // Simulação de login - em produção, isso seria uma chamada para API
+      if (email && password) {
+        const userData = {
+          id: Date.now(),
+          name: email.split('@')[0],
+          email: email
+        };
+        saveSession(userData);
         return { success: true };
       } else {
-        return { success: false, error: result.error };
+        return { success: false, error: 'Email e senha são obrigatórios' };
       }
     } catch (error) {
       return { success: false, error: 'Erro interno do servidor' };
@@ -72,12 +69,17 @@ export function AuthProvider({
 
   const register = async (userData) => {
     try {
-      const result = await authService.register(userData);
-      if (result.success) {
-        saveSession(result.user);
+      // Simulação de registro - em produção, isso seria uma chamada para API
+      if (userData.email && userData.password) {
+        const newUser = {
+          id: Date.now(),
+          name: userData.name,
+          email: userData.email
+        };
+        saveSession(newUser);
         return { success: true };
       } else {
-        return { success: false, error: result.error };
+        return { success: false, error: 'Dados obrigatórios não fornecidos' };
       }
     } catch (error) {
       return { success: false, error: 'Erro interno do servidor' };
@@ -88,13 +90,13 @@ export function AuthProvider({
     try {
       if (!user) return { success: false, error: 'Usuário não autenticado' };
       
-      const result = await authService.updateProfile(user.id, userData);
-      if (result.success) {
-        saveSession(result.user);
-        return { success: true };
-      } else {
-        return { success: false, error: result.error };
-      }
+      // Simulação de atualização - em produção, isso seria uma chamada para API
+      const updatedUser = {
+        ...user,
+        ...userData
+      };
+      saveSession(updatedUser);
+      return { success: true };
     } catch (error) {
       return { success: false, error: 'Erro interno do servidor' };
     }
