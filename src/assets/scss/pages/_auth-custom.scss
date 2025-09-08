@@ -1,6 +1,6 @@
 // Estilos customizados para páginas de autenticação
 .auth-page {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #230132 100%);
   min-height: 100vh;
   position: relative;
   
@@ -45,19 +45,32 @@
     transition: all 0.3s ease;
     
     &:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      border-color: rgb(117, 0, 131);
+      box-shadow: 0 0 0 0.2rem rgba(117, 0, 131, 0.25);
     }
   }
   
+  // Cores dos textos
+  .form-label {
+    color: #000000 !important;
+  }
+  
+  .text-muted {
+    color: #000000 !important;
+  }
+  
+  .text-primary {
+    color: rgb(107, 0, 119) !important;
+  }
+  
   .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #000000 0%, #d900f3 100%);
     border: none;
     transition: all 0.3s ease;
     
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(217, 0, 243, 0.4);
     }
   }
   

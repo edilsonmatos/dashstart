@@ -68,7 +68,7 @@ const LoginForm = () => {
         </div>
         
         <Card className="auth-card shadow-lg border-0">
-          <CardHeader className="bg-primary text-white text-center border-0">
+          <CardHeader className="text-white text-center border-0" style={{ backgroundColor: 'rgb(117, 0, 131)' }}>
             <CardTitle as="h4" className="mb-0">
               <IconifyIcon icon="bx:log-in" className="me-2" />
               Entrar
