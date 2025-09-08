@@ -7,7 +7,10 @@ import IconifyIcon from '@/components/wrappers/IconifyIcon';
 import { currency } from '@/context/constants';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useAuthContext } from '@/context/useAuthContext';
+
 const Conversions = ({ onCitySelect }) => {
+  const { user } = useAuthContext();
   const [citiesData, setCitiesData] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
   const [ageGenderData, setAgeGenderData] = useState([]);
@@ -15,11 +18,23 @@ const Conversions = ({ onCitySelect }) => {
   // Carregar dados das cidades do localStorage
   useEffect(() => {
     const loadCitiesData = () => {
-      const savedCities = localStorage.getItem('cities-data');
+      if (!user) return;
+      
+      const userCitiesKey = `cities-${user.id}`;
+      const savedCities = localStorage.getItem(userCitiesKey);
       if (savedCities) {
         try {
           const cities = JSON.parse(savedCities);
-          setCitiesData(cities);
+          // Converter formato para compatibilidade com a tabela
+          const formattedCities = cities.map(city => ({
+            id: city.id,
+            name: city.name,
+            valorInvestido: city.valor_investido || '0',
+            conversas: city.conversas || '0',
+            custoPorResultado: city.custo_por_resultado || '0,00',
+            image: city.image
+          }));
+          setCitiesData(formattedCities);
         } catch (error) {
           console.error('Erro ao carregar dados das cidades:', error);
           setCitiesData([]);
@@ -27,16 +42,22 @@ const Conversions = ({ onCitySelect }) => {
       } else {
         // Se não há dados salvos, usar dados padrão
         const defaultCities = [
-          { id: 1, name: 'TEÓFILO OTONI - MG', valorInvestido: '15,000', conversas: '1,250', custoPorResultado: '12,00', image: null },
-          { id: 2, name: 'ÁGUAS FORMOSAS - MG', valorInvestido: '12,500', conversas: '980', custoPorResultado: '12,76', image: null },
-          { id: 3, name: 'ALMENARA - MG', valorInvestido: '18,200', conversas: '1,450', custoPorResultado: '12,55', image: null },
-          { id: 4, name: 'CAPELINHA - MG', valorInvestido: '9,800', conversas: '750', custoPorResultado: '13,07', image: null },
-          { id: 5, name: 'NANUQUE - MG', valorInvestido: '14,300', conversas: '1,120', custoPorResultado: '12,77', image: null },
-          { id: 6, name: 'PINHEIROS - ES', valorInvestido: '11,700', conversas: '890', custoPorResultado: '13,15', image: null },
-          { id: 7, name: 'SÃO MATEUS - ES', valorInvestido: '16,900', conversas: '1,380', custoPorResultado: '12,25', image: null }
+          { id: 1, name: 'TEÓFILO OTONI - MG', valor_investido: '15,000', conversas: '1,250', custo_por_resultado: '12,00', image: null },
+          { id: 2, name: 'ÁGUAS FORMOSAS - MG', valor_investido: '12,500', conversas: '980', custo_por_resultado: '12,76', image: null },
+          { id: 3, name: 'ALMENARA - MG', valor_investido: '18,200', conversas: '1,450', custo_por_resultado: '12,55', image: null }
         ];
-        setCitiesData(defaultCities);
-        localStorage.setItem('cities-data', JSON.stringify(defaultCities));
+        localStorage.setItem(userCitiesKey, JSON.stringify(defaultCities));
+        
+        // Converter formato para compatibilidade com a tabela
+        const formattedCities = defaultCities.map(city => ({
+          id: city.id,
+          name: city.name,
+          valorInvestido: city.valor_investido,
+          conversas: city.conversas,
+          custoPorResultado: city.custo_por_resultado,
+          image: city.image
+        }));
+        setCitiesData(formattedCities);
       }
     };
 
@@ -48,11 +69,13 @@ const Conversions = ({ onCitySelect }) => {
     };
 
     window.addEventListener('citiesUpdated', handleCitiesUpdate);
+    window.addEventListener('storage', handleCitiesUpdate);
 
     return () => {
       window.removeEventListener('citiesUpdated', handleCitiesUpdate);
+      window.removeEventListener('storage', handleCitiesUpdate);
     };
-  }, []);
+  }, [user]);
 
   // Carregar dados de idade/gênero do localStorage
   useEffect(() => {

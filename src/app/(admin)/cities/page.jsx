@@ -159,6 +159,10 @@ const CitiesPage = () => {
 
       setCities(updatedCities);
       localStorage.setItem(userCitiesKey, JSON.stringify(updatedCities));
+      
+      // Disparar evento para atualizar a tabela no dashboard
+      window.dispatchEvent(new CustomEvent('citiesUpdated'));
+      
       showAlertMessage(editingCity ? 'Cidade atualizada com sucesso!' : 'Cidade adicionada com sucesso!');
       closeModal();
     } catch (error) {
@@ -176,6 +180,10 @@ const CitiesPage = () => {
         const updatedCities = cities.filter(city => city.id !== cityId);
         setCities(updatedCities);
         localStorage.setItem(userCitiesKey, JSON.stringify(updatedCities));
+        
+        // Disparar evento para atualizar a tabela no dashboard
+        window.dispatchEvent(new CustomEvent('citiesUpdated'));
+        
         showAlertMessage('Cidade deletada com sucesso!');
       } catch (error) {
         showAlertMessage('Erro ao deletar cidade', 'danger');
