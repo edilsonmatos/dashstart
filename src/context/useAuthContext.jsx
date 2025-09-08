@@ -38,8 +38,10 @@ export function AuthProvider({
   }, []);
 
   const saveSession = (userData) => {
+    console.log('Salvando sessão:', userData);
     setCookie(authSessionKey, JSON.stringify(userData));
     setUser(userData);
+    console.log('Sessão salva, usuário definido:', userData);
   };
 
   const removeSession = () => {
@@ -57,12 +59,14 @@ export function AuthProvider({
           name: email.split('@')[0],
           email: email
         };
+        console.log('Login realizado:', userData);
         saveSession(userData);
         return { success: true };
       } else {
         return { success: false, error: 'Email e senha são obrigatórios' };
       }
     } catch (error) {
+      console.error('Erro no login:', error);
       return { success: false, error: 'Erro interno do servidor' };
     }
   };
@@ -76,12 +80,14 @@ export function AuthProvider({
           name: userData.name,
           email: userData.email
         };
+        console.log('Registro realizado:', newUser);
         saveSession(newUser);
         return { success: true };
       } else {
         return { success: false, error: 'Dados obrigatórios não fornecidos' };
       }
     } catch (error) {
+      console.error('Erro no registro:', error);
       return { success: false, error: 'Erro interno do servidor' };
     }
   };
