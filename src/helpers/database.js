@@ -1,14 +1,14 @@
 import { Pool } from 'pg';
 
-// Configuração do banco usando variáveis de ambiente
+// Configuração do banco usando variáveis de ambiente ou string hardcoded
 const databaseConfig = {
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL || 'postgresql://banco_de_dados_zim5_user:TsMwHNrc0569RbSbiENou4N8yi3qBQqE@dpg-d2d2653uibrs73fof550-a.oregon-postgres.render.com/banco_de_dados_zim5',
   ssl: {
     rejectUnauthorized: false // Necessário para Render
   },
   max: 20, // máximo de clientes no pool
   idleTimeoutMillis: 30000, // fecha clientes inativos após 30 segundos
-  connectionTimeoutMillis: 2000, // retorna erro após 2 segundos se não conseguir conectar
+  connectionTimeoutMillis: 10000, // aumentado para 10 segundos para evitar timeout
 };
 
 // Pool de conexões do PostgreSQL
@@ -18,12 +18,23 @@ const pool = new Pool(databaseConfig);
 export const query = async (text, params) => {
   const start = Date.now();
   try {
+    console.log('Executando query:', { text: text.substring(0, 100) + '...', params });
     const res = await pool.query(text, params);
     const duration = Date.now() - start;
-    console.log('Query executada:', { text, duration, rows: res.rowCount });
+    console.log('Query executada com sucesso:', { 
+      text: text.substring(0, 100) + '...', 
+      duration: `${duration}ms`, 
+      rows: res.rowCount 
+    });
     return res;
   } catch (error) {
-    console.error('Erro na query:', error);
+    console.error('Erro na query:', {
+      text: text.substring(0, 100) + '...',
+      params,
+      error: error.message,
+      code: error.code,
+      detail: error.detail
+    });
     throw error;
   }
 };
@@ -41,11 +52,20 @@ export const closePool = async () => {
 // Função para testar a conexão
 export const testConnection = async () => {
   try {
-    const result = await query('SELECT NOW()');
-    console.log('Conexão com banco de dados estabelecida:', result.rows[0]);
+    console.log('Testando conexão com banco de dados...');
+    const result = await query('SELECT NOW() as current_time, version() as postgres_version');
+    console.log('✅ Conexão com banco de dados estabelecida:', {
+      current_time: result.rows[0].current_time,
+      version: result.rows[0].postgres_version
+    });
     return true;
   } catch (error) {
-    console.error('Erro ao conectar com banco de dados:', error);
+    console.error('❌ Erro ao conectar com banco de dados:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint
+    });
     return false;
   }
 };
@@ -83,12 +103,12 @@ export const initializeDatabase = async () => {
     await query(`
       CREATE TABLE IF NOT EXISTS settings (
         id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        user_id INTEGER,
         setting_key VARCHAR(100) NOT NULL,
         setting_value TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(user_id, setting_key)
+        UNIQUE(setting_key)
       )
     `);
 
